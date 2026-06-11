@@ -41,8 +41,9 @@ export default function KnockoutTree({
   const [connections, setConnections] = React.useState<{ pathD: string }[]>([]);
 
   const updatePaths = React.useCallback(() => {
-    if (!containerRef.current) return;
-    const containerRect = containerRef.current.getBoundingClientRect();
+    const container = containerRef.current;
+    if (!container) return;
+    const containerRect = container.getBoundingClientRect();
     const newConns: { pathD: string }[] = [];
 
     const stagesToConnect: Match['stage'][] = [
@@ -65,12 +66,12 @@ export default function KnockoutTree({
         const childRect = childEl.getBoundingClientRect();
         const parentRect = parentEl.getBoundingClientRect();
 
-        const x1 = childRect.right - containerRect.left + containerRef.current.scrollLeft;
-        const y1 = childRect.top + childRect.height / 2 - containerRect.top + containerRef.current.scrollTop;
+        const x1 = childRect.right - containerRect.left + container.scrollLeft;
+        const y1 = childRect.top + childRect.height / 2 - containerRect.top + container.scrollTop;
 
-        const x2 = parentRect.left - containerRect.left + containerRef.current.scrollLeft;
+        const x2 = parentRect.left - containerRect.left + container.scrollLeft;
         const slotOffset = progression.slot === 'teamA' ? 0.35 : 0.65;
-        const y2 = parentRect.top + parentRect.height * slotOffset - containerRect.top + containerRef.current.scrollTop;
+        const y2 = parentRect.top + parentRect.height * slotOffset - containerRect.top + container.scrollTop;
 
         const dx = x2 - x1;
         const xm = x1 + dx * 0.45;
