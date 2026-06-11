@@ -274,8 +274,7 @@ export default function Home() {
       {/* Dynamic Stadium Footer */}
       <footer className="py-6 text-center text-[10px] text-white/50 border-t border-white/10 mt-12 bg-black/20 select-none">
         <p>
-          © 2026 Lịch thi đấu World Cup 2026. Phục chế hoàn chỉnh dựa trên thiết
-          kế Google Stitch.
+          © 2026 Lịch thi đấu World Cup 2026. Trang web được phát triển bởi nhà sáng tạo Trương Minh Khôi.
         </p>
       </footer>
     </div>
