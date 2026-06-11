@@ -1491,7 +1491,7 @@
     "id": "TP_1",
     "stage": "THIRD_PLACE",
     "label": "Tranh Hạng 3",
-    "date": "2026-07-18T20:00:00.000Z",
+    "date": "2026-07-18T21:00:00.000Z",
     "teamA": null,
     "teamB": null,
     "scoreA": null,
@@ -1501,13 +1501,13 @@
     "placeholderA": "Thua Trận 101",
     "placeholderB": "Thua Trận 102",
     "vnDate": "19-07",
-    "vnTime": "03:00"
+    "vnTime": "04:00"
   },
   {
     "id": "F_1",
     "stage": "FINAL",
     "label": "Chung Kết",
-    "date": "2026-07-20T02:00:00.000Z",
+    "date": "2026-07-19T19:00:00.000Z",
     "teamA": null,
     "teamB": null,
     "scoreA": null,
@@ -1517,6 +1517,6 @@
     "placeholderA": "Thắng Trận 101",
     "placeholderB": "Thắng Trận 102",
     "vnDate": "20-07",
-    "vnTime": "09:00"
+    "vnTime": "02:00"
   }
 ]

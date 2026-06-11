@@ -28,7 +28,7 @@ export default function MatchTable({
   onSelectWinner,
   onUpdateR32Team,
 }: MatchTableProps) {
-  
+
   // Format Date for Table (e.g. "12-06")
   const getTableDate = (m: Match) => {
     if (m.vnDate) return m.vnDate;
@@ -60,7 +60,7 @@ export default function MatchTable({
     onUpdateScore(match.id, scoreA, scoreB, nextStatus);
   };
 
-  // Group matches by date
+  // Group matches by date and sort matches within each date group by time ascending
   const groupedMatches = React.useMemo(() => {
     const groups: { date: string; list: Match[] }[] = [];
     matches.forEach((m) => {
@@ -72,6 +72,12 @@ export default function MatchTable({
       }
       group.list.push(m);
     });
+
+    // Sort matches in each day by kickoff time ascending
+    groups.forEach((g) => {
+      g.list.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    });
+
     return groups;
   }, [matches, useUTC]);
 
@@ -124,7 +130,7 @@ export default function MatchTable({
 
       {/* Grouped Day Blocks */}
       {groupedMatches.map((group) => (
-        <div 
+        <div
           key={group.date}
           className="flex border border-gray-300 rounded-xl overflow-hidden shadow-md bg-white transition-colors"
         >
@@ -139,20 +145,19 @@ export default function MatchTable({
               const teamA = teams.find((t) => t.id === m.teamA);
               const teamB = teams.find((t) => t.id === m.teamB);
               const color = getGroupColor(m);
-              const displayLabel = m.stage === 'GROUP' 
-                ? m.group 
+              const displayLabel = m.stage === 'GROUP'
+                ? m.group
                 : m.stage === 'FINAL'
-                ? 'CK'
-                : m.stage === 'THIRD_PLACE'
-                ? '3'
-                : m.label ? m.label.replace('Trận ', '') : m.id;
+                  ? 'CK'
+                  : m.stage === 'THIRD_PLACE'
+                    ? '3'
+                    : m.label ? m.label.replace('Trận ', '') : m.id;
 
               return (
                 <div
                   key={m.id}
-                  className={`flex items-center py-2.5 text-[11px] hover:bg-gray-50 transition-colors ${
-                    m.status === 'LIVE' ? 'bg-red-50/70 border-y border-red-200' : ''
-                  }`}
+                  className={`flex items-center py-2.5 text-[11px] hover:bg-gray-50 transition-colors ${m.status === 'LIVE' ? 'bg-red-50/70 border-y border-red-200' : ''
+                    }`}
                 >
                   {/* Time */}
                   <div className="w-[14.3%] text-center font-bold text-gray-900 border-r border-gray-300">
@@ -186,13 +191,12 @@ export default function MatchTable({
                           </select>
                         ) : (
                           <span
-                            className={`font-bold truncate text-right ${
-                              m.status === 'FINISHED' && m.winner === m.teamA
+                            className={`font-bold truncate text-right ${m.status === 'FINISHED' && m.winner === m.teamA
                                 ? 'text-emerald-700 font-black'
                                 : m.status === 'FINISHED' && m.winner !== m.teamA
-                                ? 'text-gray-400 line-through font-normal opacity-60'
-                                : 'text-gray-900'
-                            }`}
+                                  ? 'text-gray-400 font-normal opacity-60'
+                                  : 'text-gray-900'
+                              }`}
                           >
                             {teamA?.name || m.placeholderA || 'Chưa rõ'}
                           </span>
@@ -236,9 +240,8 @@ export default function MatchTable({
                           </div>
                         ) : m.status !== 'UPCOMING' ? (
                           <span
-                            className={`font-extrabold text-[11px] bg-gray-50 border border-gray-250 px-1.5 py-0.5 rounded ${
-                              m.status === 'LIVE' ? 'text-red-600 ring-1 ring-red-300 animate-pulse' : 'text-gray-900'
-                            }`}
+                            className={`font-extrabold text-[11px] bg-gray-50 border border-gray-250 px-1.5 py-0.5 rounded ${m.status === 'LIVE' ? 'text-red-600 ring-1 ring-red-300 animate-pulse' : 'text-gray-900'
+                              }`}
                           >
                             {m.scoreA} : {m.scoreB}
                           </span>
@@ -275,13 +278,12 @@ export default function MatchTable({
                           </select>
                         ) : (
                           <span
-                            className={`font-bold truncate text-left ${
-                              m.status === 'FINISHED' && m.winner === m.teamB
+                            className={`font-bold truncate text-left ${m.status === 'FINISHED' && m.winner === m.teamB
                                 ? 'text-emerald-700 font-black'
                                 : m.status === 'FINISHED' && m.winner !== m.teamB
-                                ? 'text-gray-400 line-through font-normal opacity-60'
-                                : 'text-gray-900'
-                            }`}
+                                  ? 'text-gray-400 font-normal opacity-60'
+                                  : 'text-gray-900'
+                              }`}
                           >
                             {teamB?.name || m.placeholderB || 'Chưa rõ'}
                           </span>
@@ -302,21 +304,19 @@ export default function MatchTable({
                           <div className="flex gap-1.5">
                             <button
                               onClick={() => onSelectWinner(m.id, m.teamA!)}
-                              className={`px-1.5 py-0.5 rounded border ${
-                                m.winner === m.teamA
+                              className={`px-1.5 py-0.5 rounded border ${m.winner === m.teamA
                                   ? 'bg-amber-500 text-white border-transparent font-bold'
                                   : 'bg-gray-100 border-gray-300 text-gray-700'
-                              }`}
+                                }`}
                             >
                               {teamA?.name}
                             </button>
                             <button
                               onClick={() => onSelectWinner(m.id, m.teamB!)}
-                              className={`px-1.5 py-0.5 rounded border ${
-                                m.winner === m.teamB
+                              className={`px-1.5 py-0.5 rounded border ${m.winner === m.teamB
                                   ? 'bg-amber-500 text-white border-transparent font-bold'
                                   : 'bg-gray-100 border-gray-300 text-gray-700'
-                              }`}
+                                }`}
                             >
                               {teamB?.name}
                             </button>

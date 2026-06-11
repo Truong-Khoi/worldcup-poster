@@ -28,7 +28,7 @@ const groupHeaderStyles: Record<string, string> = {
 export default function GroupsGrid({ teams, groupRange }: GroupsGridProps) {
   // Group teams
   const groupsList: Record<string, Team[]> = {};
-  
+
   groupRange.forEach((g) => {
     groupsList[g] = [];
   });

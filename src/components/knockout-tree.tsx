@@ -4,6 +4,7 @@ import React from 'react';
 import { Match, Team } from '@/types';
 import { formatMatchTime, formatMatchDate } from '@/utils/date';
 import { getFlagUrl } from '@/utils/helpers';
+import { progressionMap } from '@/constants/progression';
 
 interface KnockoutTreeProps {
   matches: Match[];
@@ -36,6 +37,64 @@ export default function KnockoutTree({
   const tp = getStageMatches('THIRD_PLACE');
   const f = getStageMatches('FINAL');
 
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  const [connections, setConnections] = React.useState<{ pathD: string }[]>([]);
+
+  const updatePaths = React.useCallback(() => {
+    if (!containerRef.current) return;
+    const containerRect = containerRef.current.getBoundingClientRect();
+    const newConns: { pathD: string }[] = [];
+
+    const stagesToConnect: Match['stage'][] = [
+      'ROUND_OF_32',
+      'ROUND_OF_16',
+      'QUARTER_FINAL',
+      'SEMI_FINAL',
+    ];
+
+    matches.forEach((m) => {
+      if (!stagesToConnect.includes(m.stage)) return;
+
+      const progression = progressionMap[m.id];
+      if (!progression) return;
+
+      const childEl = document.getElementById(`tree-match-${m.id}`);
+      const parentEl = document.getElementById(`tree-match-${progression.targetMatchId}`);
+
+      if (childEl && parentEl) {
+        const childRect = childEl.getBoundingClientRect();
+        const parentRect = parentEl.getBoundingClientRect();
+
+        const x1 = childRect.right - containerRect.left + containerRef.current.scrollLeft;
+        const y1 = childRect.top + childRect.height / 2 - containerRect.top + containerRef.current.scrollTop;
+
+        const x2 = parentRect.left - containerRect.left + containerRef.current.scrollLeft;
+        const slotOffset = progression.slot === 'teamA' ? 0.35 : 0.65;
+        const y2 = parentRect.top + parentRect.height * slotOffset - containerRect.top + containerRef.current.scrollTop;
+
+        const dx = x2 - x1;
+        const xm = x1 + dx * 0.45;
+
+        const pathD = `M ${x1} ${y1} H ${xm} V ${y2} H ${x2}`;
+        newConns.push({ pathD });
+      }
+    });
+
+    setConnections(newConns);
+  }, [matches]);
+
+  React.useEffect(() => {
+    const timer = setTimeout(updatePaths, 150);
+    const handleResize = () => {
+      requestAnimationFrame(updatePaths);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      clearTimeout(timer);
+    };
+  }, [matches, isEditMode, updatePaths]);
+
   // Helper to render a bracket node
   const renderBracketNode = (match: Match) => {
     const teamA = teams.find((t) => t.id === match.teamA);
@@ -53,6 +112,7 @@ export default function KnockoutTree({
 
     return (
       <div
+        id={`tree-match-${match.id}`}
         key={match.id}
         className={`w-[200px] flex-shrink-0 flex flex-col rounded-lg border text-xs overflow-hidden shadow-md backdrop-blur-sm transition-all duration-300 ${
           match.status === 'LIVE'
@@ -101,7 +161,7 @@ export default function KnockoutTree({
                     match.status === 'FINISHED' && match.winner === match.teamA
                       ? 'text-emerald-400 font-bold'
                       : match.status === 'FINISHED' && match.winner !== match.teamA
-                      ? 'text-slate-500 line-through'
+                      ? 'text-slate-500'
                       : 'text-slate-200'
                   }`}
                 >
@@ -167,7 +227,7 @@ export default function KnockoutTree({
                     match.status === 'FINISHED' && match.winner === match.teamB
                       ? 'text-emerald-400 font-bold'
                       : match.status === 'FINISHED' && match.winner !== match.teamB
-                      ? 'text-slate-500 line-through'
+                      ? 'text-slate-500'
                       : 'text-slate-200'
                   }`}
                 >
@@ -237,8 +297,26 @@ export default function KnockoutTree({
   };
 
   return (
-    <div className="w-full overflow-x-auto py-6">
-      <div className="min-w-[1150px] flex justify-between gap-6 px-4">
+    <div className="w-full overflow-x-auto py-6 relative" ref={containerRef}>
+      {/* SVG Connection Lines overlay */}
+      <svg 
+        className="absolute top-0 left-0 w-full h-full pointer-events-none z-0" 
+        style={{ minWidth: '1150px' }}
+      >
+        {connections.map((conn, idx) => (
+          <path
+            key={idx}
+            d={conn.pathD}
+            fill="none"
+            stroke="rgba(99, 102, 241, 0.4)" // Indigo color with opacity
+            strokeWidth="1.5"
+            strokeDasharray="4,4" // dashed lines for premium aesthetic
+            className="transition-all duration-300"
+          />
+        ))}
+      </svg>
+
+      <div className="min-w-[1150px] flex justify-between gap-6 px-4 relative z-10">
         {/* Vòng 1/16 (Round of 32) */}
         <div className="flex flex-col gap-4">
           <h4 className="text-xs font-bold text-center text-slate-400 uppercase tracking-widest bg-slate-950/80 py-1.5 rounded border border-slate-800 select-none">

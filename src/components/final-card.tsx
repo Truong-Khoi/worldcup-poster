@@ -71,11 +71,10 @@ export default function FinalCard({
             <span className="text-2xl mb-1 opacity-20">🏳️</span>
           )}
           <span
-            className={`text-xs font-bold truncate max-w-[100px] ${
-              match.status === 'FINISHED' && match.winner === match.teamA
+            className={`text-xs font-bold truncate max-w-[100px] ${match.status === 'FINISHED' && match.winner === match.teamA
                 ? 'text-emerald-400'
                 : 'text-slate-200'
-            }`}
+              }`}
           >
             {teamA?.name || match.placeholderA || 'Chưa rõ'}
           </span>
@@ -128,11 +127,10 @@ export default function FinalCard({
             <span className="text-2xl mb-1 opacity-20">🏳️</span>
           )}
           <span
-            className={`text-xs font-bold truncate max-w-[100px] ${
-              match.status === 'FINISHED' && match.winner === match.teamB
+            className={`text-xs font-bold truncate max-w-[100px] ${match.status === 'FINISHED' && match.winner === match.teamB
                 ? 'text-emerald-400'
                 : 'text-slate-200'
-            }`}
+              }`}
           >
             {teamB?.name || match.placeholderB || 'Chưa rõ'}
           </span>
@@ -151,21 +149,19 @@ export default function FinalCard({
             <div className="flex gap-2">
               <button
                 onClick={() => setKnockoutWinner(match.id, match.teamA!)}
-                className={`px-2 py-0.5 rounded border text-[9px] ${
-                  match.winner === match.teamA
+                className={`px-2 py-0.5 rounded border text-[9px] ${match.winner === match.teamA
                     ? 'bg-amber-500 text-slate-950 font-bold border-transparent'
                     : 'bg-slate-800 border-slate-700 text-slate-300'
-                }`}
+                  }`}
               >
                 {teamA?.name}
               </button>
               <button
                 onClick={() => setKnockoutWinner(match.id, match.teamB!)}
-                className={`px-2 py-0.5 rounded border text-[9px] ${
-                  match.winner === match.teamB
+                className={`px-2 py-0.5 rounded border text-[9px] ${match.winner === match.teamB
                     ? 'bg-amber-500 text-slate-950 font-bold border-transparent'
                     : 'bg-slate-800 border-slate-700 text-slate-300'
-                }`}
+                  }`}
               >
                 {teamB?.name}
               </button>
