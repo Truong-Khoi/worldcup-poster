@@ -18,16 +18,12 @@ export default function HeroSection() {
         </div>
       </div>
 
-      {/* Players Collage (Dynamic CSS crop of screen.png) */}
+      {/* World Cup Trophy & Match Ball (Sharp poster.png) */}
       <div className="relative w-full h-[530px] rounded-2xl overflow-hidden border border-slate-800 shadow-2xl transition-all duration-500 hover:border-slate-700 bg-slate-950">
         <img
-          src="/screen.png"
-          alt="FIFA World Cup 2026 Players & Trophy"
+          src="/poster.png"
+          alt="FIFA World Cup 2026 Trophy & Match Ball"
           className="w-full h-full object-cover pointer-events-none select-none"
-          style={{
-            objectPosition: '50% 30%', // center player collage
-            transform: 'scale(1.85)', // focus scale
-          }}
         />
         {/* Visual styling overlay for smooth integrations */}
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-slate-950/40 pointer-events-none" />
