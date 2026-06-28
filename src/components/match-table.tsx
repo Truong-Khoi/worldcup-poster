@@ -176,20 +176,6 @@ export default function MatchTable({
                     <div className="flex items-center justify-between gap-1 w-full">
                       {/* Team A or input */}
                       <div className="flex-1 flex items-center justify-end gap-1.5 min-w-0 text-center">
-                        {isEditMode && m.stage === 'ROUND_OF_32' && onUpdateR32Team ? (
-                          <select
-                            value={m.teamA || ''}
-                            onChange={(e) => onUpdateR32Team(m.id, 'teamA', e.target.value || null)}
-                            className="text-[9px] bg-white border border-gray-300 rounded px-1 py-0.5 text-gray-900 max-w-[85px] truncate focus:outline-none focus:border-blue-500"
-                          >
-                            <option value="">{m.placeholderA || 'Đội A'}</option>
-                            {teams.map((t) => (
-                              <option key={t.id} value={t.id}>
-                                {t.name}
-                              </option>
-                            ))}
-                          </select>
-                        ) : (
                           <span
                             className={`font-bold truncate text-right ${m.status === 'FINISHED' && m.winner === m.teamA
                                 ? 'text-emerald-700 font-black'
@@ -200,7 +186,6 @@ export default function MatchTable({
                           >
                             {teamA?.name || m.placeholderA || 'Chưa rõ'}
                           </span>
-                        )}
                         {teamA ? (
                           <img
                             src={getFlagUrl(teamA.id)}
@@ -263,20 +248,6 @@ export default function MatchTable({
                         ) : (
                           <span className="text-xs select-none">🏳️</span>
                         )}
-                        {isEditMode && m.stage === 'ROUND_OF_32' && onUpdateR32Team ? (
-                          <select
-                            value={m.teamB || ''}
-                            onChange={(e) => onUpdateR32Team(m.id, 'teamB', e.target.value || null)}
-                            className="text-[9px] bg-white border border-gray-300 rounded px-1 py-0.5 text-gray-900 max-w-[85px] truncate focus:outline-none focus:border-blue-500"
-                          >
-                            <option value="">{m.placeholderB || 'Đội B'}</option>
-                            {teams.map((t) => (
-                              <option key={t.id} value={t.id}>
-                                {t.name}
-                              </option>
-                            ))}
-                          </select>
-                        ) : (
                           <span
                             className={`font-bold truncate text-left ${m.status === 'FINISHED' && m.winner === m.teamB
                                 ? 'text-emerald-700 font-black'
@@ -287,7 +258,6 @@ export default function MatchTable({
                           >
                             {teamB?.name || m.placeholderB || 'Chưa rõ'}
                           </span>
-                        )}
                       </div>
                     </div>
 

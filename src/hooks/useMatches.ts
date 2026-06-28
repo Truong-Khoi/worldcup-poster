@@ -28,6 +28,7 @@ export function useMatches() {
         const initialMap = new Map((initialMatches as Match[]).map(m => [m.id, m]));
         const merged = parsed.map(m => {
           const init = initialMap.get(m.id);
+          const isR32 = init?.stage === 'ROUND_OF_32';
           return init
             ? {
                 ...m,
@@ -38,6 +39,8 @@ export function useMatches() {
                 label: init.label,
                 date: init.date,
                 stage: init.stage,
+                teamA: isR32 ? init.teamA : m.teamA,
+                teamB: isR32 ? init.teamB : m.teamB,
               }
             : m;
         });
@@ -97,41 +100,63 @@ export function useMatches() {
 
     // Handle progressions for knockout matches
     const updatedMatch = updatedMatches.find((m) => m.id === matchId);
-    if (updatedMatch && scoreA !== null && scoreB !== null) {
-      // Determine winner id
-      let winnerId = updatedMatch.winner;
-      let loserId: string | null = null;
-
-      if (scoreA === scoreB) {
-        // Tie in knockout - let's ask the user or default to teamA for progression,
-        // but let's allow manual winner picking in UI. We'll default to teamA winner here just to avoid nulls.
-        winnerId = updatedMatch.teamA;
-        loserId = updatedMatch.teamB;
-      } else {
-        winnerId = scoreA > scoreB ? updatedMatch.teamA : updatedMatch.teamB;
-        loserId = scoreA > scoreB ? updatedMatch.teamB : updatedMatch.teamA;
-      }
-
-      // 1. Winner progression
+    if (updatedMatch) {
       const progression = progressionMap[matchId];
-      if (progression) {
-        updatedMatches = updateTargetMatchSlot(
-          updatedMatches,
-          progression.targetMatchId,
-          progression.slot,
-          winnerId
-        );
-      }
-
-      // 2. Loser progression (for Semis -> Third Place)
       const loserProgression = loserProgressionMap[matchId];
-      if (loserProgression) {
-        updatedMatches = updateTargetMatchSlot(
-          updatedMatches,
-          loserProgression.targetMatchId,
-          loserProgression.slot,
-          loserId
-        );
+
+      if (scoreA !== null && scoreB !== null) {
+        // Determine winner id
+        let winnerId = updatedMatch.winner;
+        let loserId: string | null = null;
+
+        if (scoreA === scoreB) {
+          // Tie in knockout - default to teamA or keep winner if manual
+          winnerId = updatedMatch.winner || updatedMatch.teamA;
+          loserId = winnerId === updatedMatch.teamA ? updatedMatch.teamB : updatedMatch.teamA;
+        } else {
+          winnerId = scoreA > scoreB ? updatedMatch.teamA : updatedMatch.teamB;
+          loserId = scoreA > scoreB ? updatedMatch.teamB : updatedMatch.teamA;
+        }
+
+        // 1. Winner progression
+        if (progression) {
+          updatedMatches = updateTargetMatchSlot(
+            updatedMatches,
+            progression.targetMatchId,
+            progression.slot,
+            winnerId
+          );
+        }
+
+        // 2. Loser progression (for Semis -> Third Place)
+        if (loserProgression) {
+          updatedMatches = updateTargetMatchSlot(
+            updatedMatches,
+            loserProgression.targetMatchId,
+            loserProgression.slot,
+            loserId
+          );
+        }
+      } else {
+        // Scores are cleared (at least one is null)
+        // Reset the advanced team in the next round's slot to null
+        if (progression) {
+          updatedMatches = updateTargetMatchSlot(
+            updatedMatches,
+            progression.targetMatchId,
+            progression.slot,
+            null
+          );
+        }
+
+        if (loserProgression) {
+          updatedMatches = updateTargetMatchSlot(
+            updatedMatches,
+            loserProgression.targetMatchId,
+            loserProgression.slot,
+            null
+          );
+        }
       }
     }
 
@@ -203,19 +228,19 @@ export function useMatches() {
     saveToStorage(updatedMatches);
   };
 
-  // Helper to promote team to target match slot
+  // Helper to promote team to target match slot (with recursive resetting of downstream matches)
   const updateTargetMatchSlot = (
     matchList: Match[],
     targetMatchId: string,
     slot: 'teamA' | 'teamB',
     teamId: string | null
   ): Match[] => {
-    return matchList.map((m) => {
+    // 1. Update the immediate target match
+    let updatedList = matchList.map((m) => {
       if (m.id === targetMatchId) {
         return {
           ...m,
           [slot]: teamId,
-          // Reset score/winner of the next stage match since the team changed
           scoreA: null,
           scoreB: null,
           status: 'UPCOMING' as const,
@@ -224,6 +249,29 @@ export function useMatches() {
       }
       return m;
     });
+
+    // 2. Recursively clear downstream slots
+    const targetProgression = progressionMap[targetMatchId];
+    if (targetProgression) {
+      updatedList = updateTargetMatchSlot(
+        updatedList,
+        targetProgression.targetMatchId,
+        targetProgression.slot,
+        null
+      );
+    }
+
+    const targetLoserProgression = loserProgressionMap[targetMatchId];
+    if (targetLoserProgression) {
+      updatedList = updateTargetMatchSlot(
+        updatedList,
+        targetLoserProgression.targetMatchId,
+        targetLoserProgression.slot,
+        null
+      );
+    }
+
+    return updatedList;
   };
 
   // Reset all data to initial state
